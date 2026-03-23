@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campus Connect – Student Service Platform</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -33,20 +33,34 @@
         <div class="auth-blob blob2"></div>
         <div class="auth-blob blob3"></div>
     </div>
-    <div class="auth-card">
+
+    <!-- Hero Section -->
+    <div class="landing-hero">
+        <h1>Elevate Your Campus Life 🚀</h1>
+        <p>The next-generation student service platform. Share resources, report issues, and stay connected.</p>
+        <div class="hero-actions">
+            <a href="#login-anchor" class="btn-primary">Enter Portal</a>
+            <a href="#vision-anchor" class="btn-secondary">Explore Vision</a>
+        </div>
+    </div>
+
+    <!-- Login Card -->
+    <div id="login-anchor" class="auth-card">
         <div class="auth-logo">
-            <div class="logo-icon">⬡</div>
-            <span class="logo-text">Campus<strong>Connect</strong></span>
+            <div class="logo-icon">
+                <img src="img/logo.png" class="logo-img" alt="Logo">
+            </div>
+            <span class="logo-text">Campus<span>Connect</span></span>
         </div>
         <div class="auth-header" style="text-align:center;margin-bottom:32px">
-            <h1 style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:8px">Welcome back!</h1>
-            <p style="color:var(--text-muted);font-size:0.9rem">Please sign in to your campus account</p>
+            <h2 style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:8px">Ready to start?</h2>
+            <p style="color:var(--text-muted);font-size:0.9rem">Sign in to access your student services</p>
         </div>
         <div class="auth-tabs">
             <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Sign In</button>
             <button class="auth-tab" id="tab-register" onclick="switchAuthTab('register')">Register</button>
         </div>
-        
+
         <!-- Login Form -->
         <div id="login-form">
             <div class="form-group">
@@ -61,7 +75,7 @@
                 </div>
             </div>
             <button class="btn-primary full-width" onclick="handleLogin()">Sign In</button>
-            <p class="auth-hint">Admin: admin@campus.edu / password</p>
+            <p class="auth-hint">Admin: admin@campus.edu / admin123</p>
         </div>
 
         <!-- Register Form -->
@@ -96,55 +110,63 @@
         <div id="auth-msg" style="margin-top:12px;text-align:center;font-size:13px;color:#ff8080"></div>
     </div>
 
-    <!-- ABOUT & TEAM SECTION -->
-    <footer class="about-footer">
-        <div class="about-grid">
-            <div class="about-content">
-                <h2>About Campus Connect</h2>
-                <p>
-                    Campus Connect is a next-generation student ecosystem designed to bridge the gap between academic life and social interaction. 
-                    Our platform provides a secure, intuitive space for students to share resources, report campus issues, and build lasting professional networks. 
-                    Built by students, for students, we prioritize safety, speed, and seamless connectivity.
-                </p>
-                <div class="mission-box">
-                    <h3>Our Mission</h3>
-                    <p>Our mission is to empower every student with the tools they need to succeed and connect. We believe that a stronger campus community starts with better communication and shared knowledge.</p>
+    <!-- HIDDEN LANDING TEMPLATE (for SPA re-use) -->
+    <template id="landing-template">
+        <div class="landing-page-content">
+            <div class="about-grid">
+                <div class="about-content">
+                    <h2>Our Vision</h2>
+                    <p>
+                        Campus Connect is more than just a platform; it's a <strong>next-generation student ecosystem</strong> designed to unify the academic and social threads of campus life. 
+                        We provide a secure, high-performance environment for resource sharing, issue reporting, and professional networking.
+                    </p>
+                    <div class="mission-box">
+                        <h3>Empowering Students</h3>
+                        <p>Our goal is to build a stronger campus community by fostering <strong>seamless communication</strong> and shared knowledge. We believe in the power of connectivity to drive student success.</p>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="team-section">
-                <h2>Meet Our Team</h2>
-                <div class="team-deck">
-                    <div class="team-card">
-                        <img src="uploads/team/shivani.png" alt="Shivani Sharma" class="team-img">
-                        <h4>Shivani Sharma</h4>
-                        <div class="team-role">Founder & Lead Dev</div>
-                        <p class="team-desc">Visionary architect building the future of campus life.</p>
-                    </div>
-                    <div class="team-card">
-                        <img src="uploads/team/alex.png" alt="Alex Chen" class="team-img">
-                        <h4>Alex Chen</h4>
-                        <div class="team-role">UX Designer</div>
-                        <p class="team-desc">Creating seamless experiences that students love.</p>
-                    </div>
-                    <div class="team-card">
-                        <img src="uploads/team/sarah.png" alt="Sarah J." class="team-img">
-                        <h4>Sarah J.</h4>
-                        <div class="team-role">Backend Engineer</div>
-                        <p class="team-desc">Optimizing the backbone of campus interactions.</p>
+                
+                <div class="team-section">
+                    <h2>The Innovators</h2>
+                    <div class="team-deck">
+                        <div class="team-card">
+                            <img src="uploads/team/shivani.png" alt="Shivani Sharma" class="team-img">
+                            <h4>Shivani Sharma</h4>
+                            <div class="team-role">Founder &amp; Lead Architect</div>
+                            <p class="team-desc">Building the core foundations of the Campus Connect experience.</p>
+                        </div>
+                        <div class="team-card">
+                            <img src="uploads/team/alex.png" alt="Alex Chen" class="team-img">
+                            <h4>Alex Chen</h4>
+                            <div class="team-role">Creative Director</div>
+                            <p class="team-desc">Designing intuitive interfaces that simplify student life.</p>
+                        </div>
+                        <div class="team-card">
+                            <img src="uploads/team/sarah.png" alt="Sarah Johnson" class="team-img">
+                            <h4>Sarah Johnson</h4>
+                            <div class="team-role">Product Strategist</div>
+                            <p class="team-desc">Bridging the gap between user needs and technical excellence.</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </footer>
+    </template>
+
+    <!-- Vision & Team section (populated by JS) -->
+    <div id="vision-anchor" style="width:100%;max-width:1100px;padding:0 20px 80px">
+        <div id="landing-static-target"></div>
+    </div>
 </div>
 
 <!-- MAIN APP -->
 <div id="app" class="app" style="display:none">
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="logo-icon small">⬡</div>
-            <span class="logo-text small">Campus<strong>Connect</strong></span>
+            <div class="logo-icon">
+                <img src="img/logo.png" class="logo-img small" alt="Logo">
+            </div>
+            <span class="logo-text" style="font-size:1.1rem">Campus<span>Connect</span></span>
             <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
         </div>
         <div class="user-chip">
@@ -156,7 +178,7 @@
         </div>
         <nav class="sidebar-nav">
             <div class="nav-section-label">Main</div>
-            <a class="nav-item active" onclick="navigate('dashboard')" data-page="dashboard"><span class="nav-icon">◈</span> Dashboard</a>
+            <a class="nav-item active" onclick="navigate('dashboard')" data-page="dashboard"><span class="nav-icon">⬡</span> Dashboard</a>
             <a class="nav-item" onclick="navigate('notes')" data-page="notes"><span class="nav-icon">◧</span> Notes Sharing</a>
             <a class="nav-item" onclick="navigate('lost-found')" data-page="lost-found"><span class="nav-icon">◎</span> Lost & Found</a>
             <a class="nav-item" onclick="navigate('complaints')" data-page="complaints"><span class="nav-icon">◉</span> Complaints</a>

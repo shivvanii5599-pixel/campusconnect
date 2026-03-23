@@ -29,6 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
     try { const u = localStorage.getItem('cc_user'); if(u) user = JSON.parse(u); } catch(e) {}
     if (token && user) { currentUser = user; _token = token; showApp(); }
     else { showAuth(); }
+    
+    // Initial sync of landing content
+    const tmpl = document.getElementById('landing-template');
+    const target = document.getElementById('landing-static-target');
+    if (tmpl && target) target.appendChild(tmpl.content.cloneNode(true));
 });
 
 function toggleTheme() {
@@ -69,12 +74,22 @@ function showApp() {
 function updateSidebar() {
     if (!currentUser) return;
     const initials = currentUser.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-    document.getElementById('sidebar-avatar').textContent = initials;
-    document.getElementById('topbar-avatar').textContent = initials;
-    document.getElementById('sidebar-name').textContent = currentUser.full_name;
-    document.getElementById('sidebar-role').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Student';
-    document.getElementById('topbar-name').textContent = currentUser.full_name.split(' ')[0];
-    document.getElementById('admin-nav').style.display = currentUser.role === 'admin' ? 'block' : 'none';
+    
+    // Update sidebar elements
+    const avatar = document.getElementById('sidebar-avatar');
+    if (avatar) avatar.textContent = initials;
+    
+    const name = document.getElementById('sidebar-name');
+    if (name) name.textContent = currentUser.full_name;
+    
+    const role = document.getElementById('sidebar-role');
+    if (role) role.textContent = currentUser.role === 'admin' ? 'Administrator' : 'Student';
+    
+    // Update admin navigation
+    const adminNav = document.getElementById('admin-nav');
+    if (adminNav) {
+        adminNav.style.display = currentUser.role === 'admin' ? 'block' : 'none';
+    }
 }
 
 // ===== AUTH =====
@@ -167,7 +182,8 @@ function navigate(page) {
     document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.page === page));
     
     const titles = {
-        dashboard: 'Dashboard', notes: 'Notes Sharing', 'lost-found': 'Lost & Found',
+        dashboard: currentUser && currentUser.role === 'admin' ? 'Admin Control Center 🛡️' : 'Dashboard', 
+        notes: 'Notes Sharing', 'lost-found': 'Lost & Found',
         complaints: 'Complaints', events: 'Events', profile: 'My Profile',
         'admin-users': 'Manage Users', 'admin-notes': 'Approve Notes',
         'admin-complaints': 'Manage Complaints', 'admin-events': 'Manage Events'
@@ -200,7 +216,11 @@ async function apiFetch(url, method = 'GET', data = null, isFormData = false) {
 }
 
 function setContent(html) {
-    document.getElementById('content-area').innerHTML = html;
+    const el = document.getElementById('content-area');
+    el.innerHTML = html;
+    el.classList.remove('content-fade-in');
+    void el.offsetWidth; // Trigger reflow
+    el.classList.add('content-fade-in');
 }
 
 function loading() {
@@ -238,16 +258,18 @@ async function dashboard() {
                 const s = res.stats;
                 setContent(`
                     <div class="welcome-banner">
-                        <h2>Admin Dashboard 🛡️</h2>
-                        <p>Manage Campus Connect — ${new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })}</p>
+                        <div class="banner-content">
+                            <h2>Admin Control Center 🛡️</h2>
+                            <p>Real-time campus overview — ${new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })}</p>
+                        </div>
                     </div>
                     <div class="stat-grid">
-                        <div class="stat-card" style="--accent-color: var(--accent)"><div class="stat-icon">👥</div><div class="stat-value">${s.students}</div><div class="stat-label">Total Students</div></div>
-                        <div class="stat-card" style="--accent-color: var(--accent4)"><div class="stat-icon">📋</div><div class="stat-value">${s.pendingNotes}</div><div class="stat-label">Pending Notes</div></div>
-                        <div class="stat-card" style="--accent-color: var(--accent2)"><div class="stat-icon">⚠️</div><div class="stat-value">${s.pendingComplaints}</div><div class="stat-label">Open Complaints</div></div>
-                        <div class="stat-card" style="--accent-color: var(--accent3)"><div class="stat-icon">📅</div><div class="stat-value">${s.upcomingEvents}</div><div class="stat-label">Upcoming Events</div></div>
-                        <div class="stat-card" style="--accent-color: #f7971e)"><div class="stat-icon">🔍</div><div class="stat-value">${s.lostFoundItems}</div><div class="stat-label">Lost & Found</div></div>
-                        <div class="stat-card" style="--accent-color: var(--accent3)"><div class="stat-icon">✅</div><div class="stat-value">${s.totalRegistrations}</div><div class="stat-label">Registrations</div></div>
+                        <div class="stat-card" style="--accent-color: var(--accent)"><div class="stat-icon">👥</div><div class="stat-value">${s.students}</div><div class="stat-label">Verified Students</div></div>
+                        <div class="stat-card" style="--accent-color: var(--accent4)"><div class="stat-icon">📚</div><div class="stat-value">${s.pendingNotes}</div><div class="stat-label">Pending Approval</div></div>
+                        <div class="stat-card" style="--accent-color: var(--accent2)"><div class="stat-icon">⚠️</div><div class="stat-value">${s.pendingComplaints}</div><div class="stat-label">Active Tickets</div></div>
+                        <div class="stat-card" style="--accent-color: var(--accent3)"><div class="stat-icon">📅</div><div class="stat-value">${s.upcomingEvents}</div><div class="stat-label">Live Events</div></div>
+                        <div class="stat-card" style="--accent-color: #f7971e"><div class="stat-icon">🔍</div><div class="stat-value">${s.lostFoundItems}</div><div class="stat-label">Lost & Found Items</div></div>
+                        <div class="stat-card" style="--accent-color: var(--accent3)"><div class="stat-icon">✨</div><div class="stat-value">${s.totalRegistrations}</div><div class="stat-label">Total Users</div></div>
                     </div>
                     <div class="grid-2">
                         <div>
@@ -273,42 +295,107 @@ async function dashboard() {
                                     </div>`).join('') : '<div class="empty-state"><p>No users yet</p></div>'}
                             </div>
                         </div>
-                    </div>`);
+                    </div>
+                    ${aboutSectionHTML()}`); 
             }
         } catch (e) { setContent('<div class="empty-state"><div class="empty-icon">⚠️</div><p>Failed to load stats</p></div>'); }
     } else {
         setContent(`
             <div class="welcome-banner">
-                <h2>Welcome back, ${currentUser.full_name.split(' ')[0]}! 👋</h2>
-                <p>Access your campus services — notes, events, complaints, and more.</p>
+                <div class="banner-content">
+                    <h2>Welcome back, ${currentUser.full_name.split(' ')[0]}! 👋</h2>
+                    <p>Your central hub for campus resources, events, and support.</p>
+                </div>
             </div>
             <div class="stat-grid">
-                <div class="stat-card" style="--accent-color:var(--accent); cursor:pointer" onclick="navigate('notes')"><div class="stat-icon">📚</div><div class="stat-value">→</div><div class="stat-label">Browse Notes</div></div>
-                <div class="stat-card" style="--accent-color:var(--accent3); cursor:pointer" onclick="navigate('events')"><div class="stat-icon">🎉</div><div class="stat-value">→</div><div class="stat-label">View Events</div></div>
-                <div class="stat-card" style="--accent-color:var(--accent2); cursor:pointer" onclick="navigate('lost-found')"><div class="stat-icon">🔍</div><div class="stat-value">→</div><div class="stat-label">Lost & Found</div></div>
-                <div class="stat-card" style="--accent-color:var(--accent4); cursor:pointer" onclick="navigate('complaints')"><div class="stat-icon">📩</div><div class="stat-value">→</div><div class="stat-label">My Complaints</div></div>
+                <div class="stat-card" style="--accent-color:var(--accent); cursor:pointer" onclick="navigate('notes')">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-value">Explore</div>
+                    <div class="stat-label">Study Resources</div>
+                </div>
+                <div class="stat-card" style="--accent-color:var(--accent3); cursor:pointer" onclick="navigate('events')">
+                    <div class="stat-icon">🎉</div>
+                    <div class="stat-value">Join</div>
+                    <div class="stat-label">Campus Events</div>
+                </div>
+                <div class="stat-card" style="--accent-color:var(--accent2); cursor:pointer" onclick="navigate('lost-found')">
+                    <div class="stat-icon">🔍</div>
+                    <div class="stat-value">Search</div>
+                    <div class="stat-label">Lost & Found</div>
+                </div>
+                <div class="stat-card" style="--accent-color:var(--accent4); cursor:pointer" onclick="navigate('complaints')">
+                    <div class="stat-icon">📩</div>
+                    <div class="stat-value">Report</div>
+                    <div class="stat-label">Need Help?</div>
+                </div>
             </div>
-            <div class="card" style="margin-top:24px">
-                <div class="section-title">Quick Tips</div>
-                <div class="grid-3" style="margin-top:16px">
-                    <div style="padding:16px;background:var(--bg3);border-radius:10px;text-align:center">
-                        <div style="font-size:2rem;margin-bottom:8px">📤</div>
-                        <div style="font-weight:600;margin-bottom:4px">Share Notes</div>
-                        <div style="font-size:0.82rem;color:var(--text-muted)">Upload PDFs to help fellow students</div>
+            <div class="card" style="margin-top:32px">
+                <div class="section-title">Getting Started</div>
+                <div class="grid-3" style="margin-top:20px">
+                    <div class="info-bubble">
+                        <div class="bubble-icon">📤</div>
+                        <div class="bubble-title">Share Notes</div>
+                        <p>Upload PDFs to build our collective knowledge base.</p>
                     </div>
-                    <div style="padding:16px;background:var(--bg3);border-radius:10px;text-align:center">
-                        <div style="font-size:2rem;margin-bottom:8px">📣</div>
-                        <div style="font-weight:600;margin-bottom:4px">Report Issues</div>
-                        <div style="font-size:0.82rem;color:var(--text-muted)">Submit hostel, academic or infra complaints</div>
+                    <div class="info-bubble">
+                        <div class="bubble-icon">📣</div>
+                        <div class="bubble-title">Help Others</div>
+                        <p>Post items you've found on campus to the feed.</p>
                     </div>
-                    <div style="padding:16px;background:var(--bg3);border-radius:10px;text-align:center">
-                        <div style="font-size:2rem;margin-bottom:8px">🏃</div>
-                        <div style="font-weight:600;margin-bottom:4px">Join Events</div>
-                        <div style="font-size:0.82rem;color:var(--text-muted)">Register for upcoming campus events</div>
+                    <div class="info-bubble">
+                        <div class="bubble-icon">🏃</div>
+                        <div class="bubble-title">Stay Active</div>
+                        <p>Register for workshops, sports, and cultural meets.</p>
                     </div>
                 </div>
-            </div>`);
+            </div>
+            ${aboutSectionHTML()}`);
     }
+}
+
+function aboutSectionHTML() {
+    return `
+    <div style="margin-top:48px;border-top:1px solid var(--border);padding-top:40px">
+        <div style="text-align:center;margin-bottom:32px">
+            <h2 style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:8px">About Campus Connect</h2>
+            <p style="color:var(--text-muted);font-size:1rem;max-width:600px;margin:0 auto">We are a next-generation student ecosystem unifying the academic and social threads of campus life.</p>
+        </div>
+        <div class="grid-2" style="margin-bottom:32px">
+            <div class="card" style="padding:28px">
+                <div style="font-size:1.8rem;margin-bottom:12px">🎯</div>
+                <h3 style="font-family:'Syne',sans-serif;color:var(--accent);margin-bottom:10px">Our Vision</h3>
+                <p style="color:var(--text-muted);line-height:1.7;font-size:0.95rem">To become the central hub of student life — from sharing knowledge to reporting campus issues, all in one secure platform.</p>
+            </div>
+            <div class="card" style="padding:28px">
+                <div style="font-size:1.8rem;margin-bottom:12px">❤️</div>
+                <h3 style="font-family:'Syne',sans-serif;color:var(--accent2);margin-bottom:10px">Our Mission</h3>
+                <p style="color:var(--text-muted);line-height:1.7;font-size:0.95rem">To build a stronger campus community by fostering <strong>seamless communication</strong> and shared knowledge through technology.</p>
+            </div>
+        </div>
+        <div style="text-align:center;margin-bottom:24px">
+            <h3 style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800">👥 The Innovators</h3>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:24px">
+            <div class="card" style="padding:28px;text-align:center">
+                <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.4rem;color:#fff;margin:0 auto 16px">SS</div>
+                <div style="font-weight:700;font-size:1.1rem;margin-bottom:4px">Shivani Sharma</div>
+                <div style="color:var(--accent);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Founder &amp; Lead Architect</div>
+                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6">Building the core foundations of the Campus Connect experience.</p>
+            </div>
+            <div class="card" style="padding:28px;text-align:center">
+                <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent3),var(--accent4));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.4rem;color:#fff;margin:0 auto 16px">AC</div>
+                <div style="font-weight:700;font-size:1.1rem;margin-bottom:4px">Alex Chen</div>
+                <div style="color:var(--accent3);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Creative Director</div>
+                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6">Designing intuitive interfaces that simplify student life.</p>
+            </div>
+            <div class="card" style="padding:28px;text-align:center">
+                <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent3));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.4rem;color:#fff;margin:0 auto 16px">SJ</div>
+                <div style="font-weight:700;font-size:1.1rem;margin-bottom:4px">Sarah Johnson</div>
+                <div style="color:var(--accent2);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Product Strategist</div>
+                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6">Bridging the gap between user needs and technical excellence.</p>
+            </div>
+        </div>
+    </div>`;
 }
 
 // ===== NOTES =====
@@ -335,18 +422,23 @@ async function notes() {
 }
 
 function renderNoteCards(notes) {
-    if (!notes.length) return `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📚</div><p>No notes found</p></div>`;
+    if (!notes.length) return `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📚</div><p>No study notes available in this category.</p></div>`;
     return notes.map(n => `
         <div class="note-card">
             <div class="note-subject">${n.subject}</div>
             <div class="note-title">${n.title}</div>
             <div class="note-meta">
-                ${n.semester ? `Sem ${n.semester} · ` : ''}${n.department || ''}<br>
-                By ${n.uploader_name} · ${n.download_count} downloads<br>
-                ${new Date(n.created_at).toLocaleDateString()}
+                ${n.semester ? `<span class="badge badge-academic">Sem ${n.semester}</span>` : ''} 
+                <span style="opacity:0.6">${n.department || ''}</span>
             </div>
-            ${n.description ? `<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px">${n.description}</div>` : ''}
-            <button class="btn-secondary btn-sm" onclick="downloadNote(${n.id}, '${n.title}')">⬇ Download PDF</button>
+            <div class="note-details">
+                By <strong>${n.uploader_name}</strong> · ${n.download_count} Downloads<br>
+                <small>${new Date(n.created_at).toLocaleDateString()}</small>
+            </div>
+            ${n.description ? `<div class="note-desc">${n.description.slice(0, 80)}${n.description.length > 80 ? '...' : ''}</div>` : ''}
+            <button class="btn-primary btn-sm full-width" style="margin-top:10px" onclick="downloadNote(${n.id}, '${n.title}')">
+                <span style="font-size:1.1rem;margin-right:6px">⬇</span> Download PDF
+            </button>
         </div>`).join('');
 }
 
@@ -420,26 +512,14 @@ async function lostFound() {
             </select>
         </div>
         <div id="lf-grid" class="item-grid">
-            ${renderLFCards(items)}
+            ${renderLostFoundCards(items)}
         </div>`);
     window._lfData = items;
 }
 
-function renderLFCards(items) {
-    if (!items.length) return `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><p>No items posted yet</p></div>`;
+function renderLostFoundCards(items) {
+    if (!items.length) return `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><p>No lost or found items reported yet.</p></div>`;
     return items.map(item => `
-        <div class="lf-card">
-            ${item.image_path ? `<img src="/uploads/images/${item.image_path}" style="width:100%;height:160px;object-fit:cover;border-radius:8px;margin-bottom:14px">` : ''}
-            <div class="lf-type" style="color:${item.type === 'lost' ? 'var(--accent2)' : 'var(--accent3)'}">${item.type === 'lost' ? '🔴 LOST' : '🟢 FOUND'}</div>
-            <div class="lf-title">${item.title}</div>
-            <div class="lf-meta">
-                📍 ${item.location || 'Location not specified'}<br>
-                📅 ${new Date(item.date_occurred).toLocaleDateString()}<br>
-                👤 ${item.contact_name}<br>
-                ${item.contact_email ? `✉️ ${item.contact_email}<br>` : ''}
-                ${item.contact_phone ? `📞 ${item.contact_phone}` : ''}
-            </div>
-            <div style="margin-top:14px;font-size:0.85rem;color:var(--text-muted)">${item.description}</div>
             ${item.posted_by === currentUser.id || currentUser.role === 'admin' ? `
             <div class="action-row" style="margin-top:14px">
                 <button class="btn-secondary btn-sm" onclick="markResolved(${item.id})">✓ Resolved</button>
@@ -527,23 +607,34 @@ async function complaints() {
             <h2>My Complaints</h2>
             <button class="btn-primary" onclick="openComplaintModal()">+ New Complaint</button>
         </div>
-        ${list.length === 0 ? `<div class="empty-state"><div class="empty-icon">📩</div><p>No complaints submitted yet</p></div>` :
-        list.map(c => `
-            <div class="complaint-card" style="margin-bottom:16px">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-                    <div class="complaint-title">${c.title}</div>
-                    <div class="action-row">
-                        <span class="badge badge-${c.category}">${c.category}</span>
-                        <span class="badge badge-${c.status}">${c.status.replace('_', ' ')}</span>
-                    </div>
+        <div id="complaints-list">
+            ${renderComplaints(list)}
+        </div>`);
+    window._complaintsData = list; // Store for potential filtering later
+}
+
+function renderComplaints(complaints) {
+    if (!complaints.length) return `<div class="empty-state"><div class="empty-icon">📩</div><p>You haven't submitted any complaints yet.</p></div>`;
+    return complaints.map(c => `
+        <div class="complaint-item card">
+            <div class="complaint-header">
+                <div class="complaint-title-group">
+                    <h4 class="complaint-title">${c.title}</h4>
+                    <span class="badge badge-${c.category}">${c.category.toUpperCase()}</span>
                 </div>
-                <div class="complaint-body">${c.description}</div>
-                <div class="complaint-footer">
-                    <span style="font-size:0.8rem;color:var(--text-muted)">📅 ${new Date(c.created_at).toLocaleDateString()}</span>
-                    <span style="font-size:0.8rem;color:var(--text-muted)">Priority: ${c.priority}</span>
+                <div class="complaint-status-group">
+                    <span class="status-pill status-${c.status}">${c.status.toUpperCase()}</span>
+                    <span class="priority-tag priority-${c.priority}">${c.priority.toUpperCase()}</span>
                 </div>
-                ${c.admin_note ? `<div class="admin-note-box">💬 Admin: ${c.admin_note}</div>` : ''}
-            </div>`).join('')}`);
+            </div>
+            <div class="complaint-body">
+                <p>${c.description}</p>
+            </div>
+            <div class="complaint-footer">
+                <span class="complaint-date">Submitted on ${new Date(c.created_at).toLocaleDateString()}</span>
+                ${c.admin_remark ? `<div class="admin-note"><strong>Admin Note:</strong> ${c.admin_remark}</div>` : ''}
+            </div>
+        </div>`).join('');
 }
 
 function openComplaintModal() {
@@ -602,36 +693,53 @@ async function events() {
             </div>
         </div>
         <div class="search-bar">
-            <input type="text" id="ev-search" placeholder="Search events...">
+            <input type="text" id="ev-search" placeholder="Search events..." oninput="filterGrid('ev-search', 'ev-grid')">
         </div>
-        <div class="item-grid">
-            ${list.length === 0 ? `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🎉</div><p>No upcoming events</p></div>` :
-            list.map(ev => {
-                const isRegistered = registeredIds.has(ev.id);
-                const isFull = ev.max_participants > 0 && ev.registered_count >= ev.max_participants;
-                const icons = { sports: '⚽', cultural: '🎭', technical: '💻', academic: '📚', other: '🎉' };
-                return `<div class="event-card">
-                    <div class="event-banner">${icons[ev.category] || '🎉'}</div>
-                    <div class="event-body">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-                            <span class="badge badge-upcoming">${ev.category || 'Event'}</span>
-                            <span style="font-size:0.78rem;color:var(--text-muted)">${ev.registered_count}${ev.max_participants > 0 ? '/'+ev.max_participants : ''} registered</span>
-                        </div>
-                        <div class="event-title">${ev.title}</div>
-                        <div class="event-meta">
-                            📅 ${new Date(ev.event_date).toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' })}<br>
-                            🕐 ${new Date(ev.event_date).toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' })}<br>
-                            📍 ${ev.venue || 'TBA'}<br>
-                            👤 Org: ${ev.organizer}
-                        </div>
-                        ${ev.description ? `<div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:14px">${ev.description.slice(0,100)}${ev.description.length > 100 ? '...' : ''}</div>` : ''}
-                        ${isRegistered ? `<button class="btn-secondary btn-sm" disabled>✓ Registered</button>` :
-                         isFull ? `<button class="btn-secondary btn-sm" disabled>Event Full</button>` :
-                         `<button class="btn-primary btn-sm" onclick="registerEvent(${ev.id})">Register Now</button>`}
-                    </div>
-                </div>`;
-            }).join('')}
+        <div id="ev-grid" class="item-grid">
+            ${renderEventCards(list, registeredIds)}
         </div>`);
+    window._eventsData = list;
+}
+
+function renderEventCards(events, registeredIds = new Set()) {
+    if (!events.length) return `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🎉</div><p>No upcoming events at the moment.</p></div>`;
+    return events.map(e => {
+        const isRegistered = registeredIds.has(e.id);
+        const isFull = e.max_participants > 0 && e.registered_count >= e.max_participants;
+        const eventDate = new Date(e.event_date);
+        return `
+        <div class="card event-card">
+            <div class="event-date-ribbon">
+                <span class="event-day">${eventDate.getDate()}</span>
+                <span class="event-month">${eventDate.toLocaleString('default', { month: 'short' })}</span>
+            </div>
+            <div class="event-content">
+                <div class="event-category-badge">${e.category || 'General'}</div>
+                <h4 class="event-title">${e.title}</h4>
+                <div class="event-meta">
+                    <span>📍 ${e.location}</span> · 
+                    <span>⏰ ${e.event_time || 'TBA'}</span>
+                </div>
+                <div class="participation-bar">
+                    <div class="bar-info">
+                        <span>${e.registered_count} Registered</span>
+                        ${e.max_participants ? `<span style="opacity:0.6">/ ${e.max_participants} max</span>` : ''}
+                    </div>
+                    ${e.max_participants ? `<div class="bar-outer"><div class="bar-inner" style="width:${Math.min(100, (e.registered_count/e.max_participants)*100)}%"></div></div>` : ''}
+                </div>
+                <div class="event-footer">
+                    ${isRegistered ? 
+                        `<button class="btn-secondary btn-sm full-width" disabled>✓ Registered</button>` : 
+                        (isFull ? 
+                            `<button class="btn-secondary btn-sm full-width" disabled>Full</button>` : 
+                            `<button class="btn-primary btn-sm full-width" onclick="registerForEvent(${e.id})">Register Now</button>`
+                        )
+                    }
+                    <button class="btn-secondary btn-sm" onclick="viewEventDetails(${JSON.stringify(e).replace(/"/g, '&quot;')})" title="View Details">ℹ️</button>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
 }
 
 async function registerEvent(id) {
@@ -961,3 +1069,57 @@ async function deleteEvent(id) {
     if (res.success) { showToast('Event deleted.', 'success'); adminEvents(); }
     else showToast(res.message, 'error');
 }
+
+// ===== HELPERS & UTILS =====
+function filterGrid(inputId, gridId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const val = input.value.toLowerCase();
+    const cards = document.querySelectorAll(`#${gridId} .card`);
+    cards.forEach(c => {
+        c.style.display = c.textContent.toLowerCase().includes(val) ? '' : 'none';
+    });
+}
+
+function viewEventDetails(e) {
+    const body = `
+        <div class="modal-detail">
+            <div class="event-meta" style="font-size:1.1rem;margin-bottom:15px;color:var(--text-muted)">
+                📅 ${new Date(e.event_date).toLocaleDateString()} at ${e.event_time || 'TBA'}<br>
+                📍 ${e.location}
+            </div>
+            <p style="white-space:pre-wrap;line-height:1.7;font-size:1rem;color:var(--text)">${e.description}</p>
+            <div style="margin-top:20px;padding:20px;background:var(--bg3);border-radius:12px;border:1px solid var(--border)">
+                <strong>Organized by:</strong> ${e.organizer}<br>
+                <strong>Capacity:</strong> ${e.max_participants ? e.max_participants : 'Unlimited'}
+            </div>
+            <div class="action-row" style="margin-top:25px">
+                <button class="btn-primary full-width" onclick="registerForEvent(${e.id});closeModal()">Register Now</button>
+            </div>
+        </div>
+    `;
+    openModal(e.title, body);
+}
+
+function viewItemDetails(item) {
+    const body = `
+        <div class="modal-detail">
+            ${item.image_path ? `<img src="uploads/images/${item.image_path}" style="width:100%;border-radius:12px;margin-bottom:20px;box-shadow:var(--shadow);max-height:300px;object-fit:cover">` : ''}
+            <div class="item-meta" style="margin-bottom:15px;font-size:1rem;color:var(--text-muted)">
+                <span class="badge badge-${item.type}">${item.type.toUpperCase()}</span> ·
+                📅 ${new Date(item.date_occurred).toLocaleDateString()} · 📍 ${item.location}
+            </div>
+            <p style="white-space:pre-wrap;line-height:1.7;font-size:1rem;color:var(--text)">${item.description}</p>
+            <div style="margin-top:20px;padding:20px;background:var(--bg3);border-radius:12px;border:1px solid var(--border)">
+                <h5 style="margin-bottom:10px;font-family:'Syne',sans-serif;color:var(--text)">Contact Information</h5>
+                <strong>Name:</strong> ${item.contact_name}<br>
+                ${item.contact_email ? `<strong>Email:</strong> ${item.contact_email}<br>` : ''}
+                ${item.contact_phone ? `<strong>Phone:</strong> ${item.contact_phone}` : ''}
+            </div>
+        </div>
+    `;
+    openModal(item.title, body);
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', initApp);
