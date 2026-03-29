@@ -520,11 +520,33 @@ async function lostFound() {
 function renderLostFoundCards(items) {
     if (!items.length) return `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><p>No lost or found items reported yet.</p></div>`;
     return items.map(item => `
-            ${item.posted_by === currentUser.id || currentUser.role === 'admin' ? `
-            <div class="action-row" style="margin-top:14px">
-                <button class="btn-secondary btn-sm" onclick="markResolved(${item.id})">✓ Resolved</button>
-                <button class="btn-danger btn-sm" onclick="deleteLFItem(${item.id})">Delete</button>
-            </div>` : ''}
+        <div class="item-card card">
+            <div class="item-img-container">
+                ${item.image_path ? `<img class="item-img" src="/uploads/images/${item.image_path}" alt="Item">` : `<div class="item-img-placeholder">❓</div>`}
+                <div class="item-type-badge ${item.type}">${item.type}</div>
+            </div>
+            <div class="item-content">
+                <div class="item-title">${item.title}</div>
+                <div class="item-meta">
+                    <span>📍 ${item.location || 'Campus'}</span> · 
+                    <span>📅 ${new Date(item.date_occurred).toLocaleDateString()}</span>
+                </div>
+                <div class="item-desc">${item.description}</div>
+                <div class="item-footer">
+                    <div>
+                        <div style="font-weight:600;font-size:0.85rem">${item.contact_name}</div>
+                        ${item.contact_phone ? `<div style="font-size:0.75rem;color:var(--text-muted)">📞 ${item.contact_phone}</div>` : ''}
+                    </div>
+                    <div>
+                        <span class="badge badge-${item.status}">${item.status.toUpperCase()}</span>
+                    </div>
+                </div>
+                ${item.posted_by === currentUser.id || currentUser.role === 'admin' ? `
+                <div class="action-row" style="margin-top:16px; border-top: 1px solid var(--border); padding-top: 16px">
+                    ${item.status !== 'resolved' ? `<button class="btn-secondary btn-sm" onclick="markResolved(${item.id})">✓ Mark Resolved</button>` : ''}
+                    <button class="btn-danger btn-sm" onclick="deleteLFItem(${item.id})">Delete</button>
+                </div>` : ''}
+            </div>
         </div>`).join('');
 }
 
