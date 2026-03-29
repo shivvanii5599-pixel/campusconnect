@@ -1167,7 +1167,11 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 
 @media (max-width: 600px) {
     .grid-3 { grid-template-columns: 1fr; }
-    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .stat-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .stat-card { padding: 16px; }
+    .stat-icon { font-size: 1.4rem; margin-bottom: 8px; }
+    .stat-value { font-size: 1.45rem; letter-spacing: -0.5px; }
+    .stat-label { font-size: 0.75rem; margin-top: 4px; }
     .page-header { flex-direction: column; align-items: flex-start; }
     .modal-header { padding: 16px 20px 12px; }
     .modal-body { padding: 16px 20px 20px; }
