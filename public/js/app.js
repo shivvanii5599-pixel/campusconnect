@@ -386,14 +386,14 @@ function aboutSectionHTML() {
                 <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6">Building the core foundations of the Campus Connect experience.</p>
             </div>
             <div class="card" style="padding:28px;text-align:center">
-                <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent3),var(--accent4));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.4rem;color:#fff;margin:0 auto 16px">AC</div>
-                <div style="font-weight:700;font-size:1.1rem;margin-bottom:4px">Alex Chen</div>
+                <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent3),var(--accent4));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.4rem;color:#fff;margin:0 auto 16px">NP</div>
+                <div style="font-weight:700;font-size:1.1rem;margin-bottom:4px">Nancy Parmar</div>
                 <div style="color:var(--accent3);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Creative Director</div>
                 <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6">Designing intuitive interfaces that simplify student life.</p>
             </div>
             <div class="card" style="padding:28px;text-align:center">
-                <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent3));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.4rem;color:#fff;margin:0 auto 16px">SJ</div>
-                <div style="font-weight:700;font-size:1.1rem;margin-bottom:4px">Sarah Johnson</div>
+                <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--accent2),var(--accent3));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.4rem;color:#fff;margin:0 auto 16px">ST</div>
+                <div style="font-weight:700;font-size:1.1rem;margin-bottom:4px">Samiksha Thakur</div>
                 <div style="color:var(--accent2);font-size:0.8rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Product Strategist</div>
                 <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6">Bridging the gap between user needs and technical excellence.</p>
             </div>
