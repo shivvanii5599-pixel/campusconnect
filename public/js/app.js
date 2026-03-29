@@ -776,19 +776,23 @@ async function registerEvent(id) {
 // ===== PROFILE =====
 async function profile() {
     loading();
-    const res = await apiFetch('/api/auth/profile');
-    const u = res.user;
-    if (!u) return;
-    const initials = u.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-    setContent(`
-        <div class="profile-header">
-            <div class="profile-avatar">${initials}</div>
-            <div>
-                <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">${u.full_name}</div>
-                <div style="color:var(--text-muted);margin-top:4px">${u.email}</div>
-                <div style="margin-top:8px"><span class="badge badge-${u.role === 'admin' ? 'approved' : 'upcoming'}">${u.role === 'admin' ? 'Administrator' : 'Student'}</span></div>
+    try {
+        const res = await apiFetch('/api/auth/profile');
+        if (!res.success || !res.user) {
+            setContent(`<div class="empty-state"><div class="empty-icon">⚠️</div><p>Error: ${res.message || 'Failed to load profile. Please log out and back in.'}</p></div>`);
+            return;
+        }
+        const u = res.user;
+        const initials = u.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+        setContent(`
+            <div class="profile-header">
+                <div class="profile-avatar">${initials}</div>
+                <div>
+                    <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">${u.full_name}</div>
+                    <div style="color:var(--text-muted);margin-top:4px">${u.email}</div>
+                    <div style="margin-top:8px"><span class="badge badge-${u.role === 'admin' ? 'approved' : 'upcoming'}">${u.role === 'admin' ? 'Administrator' : 'Student'}</span></div>
+                </div>
             </div>
-        </div>
         <div class="card">
             <div class="section-title">Edit Profile</div>
             <form onsubmit="updateProfile(event)">
@@ -804,6 +808,9 @@ async function profile() {
                 <button type="submit" class="btn-primary">Save Changes</button>
             </form>
         </div>`);
+    } catch (e) {
+        setContent(`<div class="empty-state"><div class="empty-icon">⚠️</div><p>Failed to load profile. Connection error.</p></div>`);
+    }
 }
 
 async function updateProfile(e) {
