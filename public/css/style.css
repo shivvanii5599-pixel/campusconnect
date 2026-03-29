@@ -1182,5 +1182,6 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     .landing-hero h1 { font-size: 2.3rem; }
     .landing-hero p { font-size: 1rem; padding: 0 10px; margin-bottom: 24px; }
     .hero-actions { flex-direction: column; gap: 12px; padding: 0 20px; }
-    .logo-text { font-size: 1.4rem; }
+    .auth-logo { flex-direction: column; gap: 8px; }
+    .logo-text { font-size: 1.3rem; }
 }
