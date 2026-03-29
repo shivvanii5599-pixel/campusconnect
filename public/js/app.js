@@ -296,9 +296,12 @@ async function dashboard() {
                             </div>
                         </div>
                     </div>
+                    </div>
                     ${aboutSectionHTML()}`); 
+            } else {
+                setContent(`<div class="empty-state"><div class="empty-icon">⚠️</div><p>Failed to load stats: ${res.message || 'Unknown error'}</p></div>`);
             }
-        } catch (e) { setContent('<div class="empty-state"><div class="empty-icon">⚠️</div><p>Failed to load stats</p></div>'); }
+        } catch (e) { setContent('<div class="empty-state"><div class="empty-icon">⚠️</div><p>Failed to load stats. Connection error.</p></div>'); }
     } else {
         setContent(`
             <div class="welcome-banner">
@@ -822,13 +825,18 @@ async function updateProfile(e) {
 // ===== ADMIN: USERS =====
 async function adminUsers() {
     loading();
-    const res = await apiFetch('/api/admin/users');
-    const users = res.users || [];
-    setContent(`
-        <div class="page-header">
-            <h2>Manage Users</h2>
-            <span style="color:var(--text-muted);font-size:0.9rem">${users.length} total users</span>
-        </div>
+    try {
+        const res = await apiFetch('/api/admin/users');
+        if (!res.success) {
+            setContent(`<div class="empty-state"><div class="empty-icon">⚠️</div><p>Error: ${res.message || 'Failed to load users'}</p></div>`);
+            return;
+        }
+        const users = res.users || [];
+        setContent(`
+            <div class="page-header">
+                <h2>Manage Users</h2>
+                <span style="color:var(--text-muted);font-size:0.9rem">${users.length} total users</span>
+            </div>
         <div class="search-bar">
             <input type="text" placeholder="Search users..." oninput="filterUsers(this.value)">
         </div>
@@ -851,7 +859,10 @@ async function adminUsers() {
                 </table>
             </div>
         </div>`);
-    window._usersData = users;
+        window._usersData = users;
+    } catch (e) {
+        setContent(`<div class="empty-state"><div class="empty-icon">⚠️</div><p>Failed to load users. Connection error.</p></div>`);
+    }
 }
 
 function filterUsers(search) {
