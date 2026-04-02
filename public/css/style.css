@@ -1185,3 +1185,58 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     .auth-logo { flex-direction: column; gap: 8px; }
     .logo-text { font-size: 1.3rem; }
 }
+
+/* Complaints Enhancement */
+.user-info-brief {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+}
+
+.support-action {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--border);
+}
+
+.btn-support {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--primary);
+    background: transparent;
+    color: var(--primary);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-support:hover {
+    background: rgba(var(--primary-rgb), 0.1);
+    transform: translateY(-1px);
+}
+
+.btn-support.active {
+    background: var(--primary);
+    color: white;
+}
+
+.support-icon {
+    font-size: 1.2rem;
+}
+
+.support-count {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.support-count strong {
+    color: var(--primary);
+}

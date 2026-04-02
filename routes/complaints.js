@@ -2,6 +2,58 @@ const router = require('express').Router();
 const db = require('../db');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 
+// Get all complaints with support counts
+router.get('/', authMiddleware, async (req, res) => {
+    try {
+        const query = `
+            SELECT c.*, u.full_name as submitter_name,
+            (SELECT COUNT(*) FROM complaint_supports WHERE complaint_id = c.id) as support_count,
+            EXISTS(SELECT 1 FROM complaint_supports WHERE complaint_id = c.id AND user_id = ?) as is_supported
+            FROM complaints c
+            JOIN users u ON c.submitted_by = u.id
+            ORDER BY created_at DESC
+        `;
+        const [complaints] = await db.query(query, [req.user.id]);
+        res.json({ success: true, complaints });
+    } catch (error) {
+        console.error('Fetch complaints error:', error);
+        res.status(500).json({ success: false, message: 'Server error.' });
+    }
+});
+
+// Toggle support for a complaint
+router.post('/:id/support', authMiddleware, async (req, res) => {
+    try {
+        const complaintId = req.params.id;
+        const userId = req.user.id;
+
+        // Check if already supported
+        const [existing] = await db.query(
+            'SELECT id FROM complaint_supports WHERE complaint_id = ? AND user_id = ?',
+            [complaintId, userId]
+        );
+
+        if (existing.length > 0) {
+            // Remove support
+            await db.query(
+                'DELETE FROM complaint_supports WHERE complaint_id = ? AND user_id = ?',
+                [complaintId, userId]
+            );
+            return res.json({ success: true, message: 'Support removed.', supported: false });
+        } else {
+            // Add support
+            await db.query(
+                'INSERT INTO complaint_supports (complaint_id, user_id) VALUES (?, ?)',
+                [complaintId, userId]
+            );
+            return res.json({ success: true, message: 'Support added!', supported: true });
+        }
+    } catch (error) {
+        console.error('Support toggle error:', error);
+        res.status(500).json({ success: false, message: 'Failed to update support.' });
+    }
+});
+
 // Get my complaints
 router.get('/my', authMiddleware, async (req, res) => {
     try {
@@ -35,7 +87,6 @@ router.post('/', authMiddleware, async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to submit complaint.' });
     }
 });
-
 
 module.exports = router;
 

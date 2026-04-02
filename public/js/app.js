@@ -625,21 +625,21 @@ async function deleteLFItem(id) {
 // ===== COMPLAINTS =====
 async function complaints() {
     loading();
-    const res = await apiFetch('/api/complaints/my');
+    const res = await apiFetch('/api/complaints');
     const list = res.complaints || [];
     setContent(`
         <div class="page-header">
-            <h2>My Complaints</h2>
+            <h2>Campus Complaints</h2>
             <button class="btn-primary" onclick="openComplaintModal()">+ New Complaint</button>
         </div>
         <div id="complaints-list">
             ${renderComplaints(list)}
         </div>`);
-    window._complaintsData = list; // Store for potential filtering later
+    window._complaintsData = list;
 }
 
 function renderComplaints(complaints) {
-    if (!complaints.length) return `<div class="empty-state"><div class="empty-icon">📩</div><p>You haven't submitted any complaints yet.</p></div>`;
+    if (!complaints.length) return `<div class="empty-state"><div class="empty-icon">📩</div><p>No complaints reported yet. Be the first!</p></div>`;
     return complaints.map(c => `
         <div class="complaint-item card">
             <div class="complaint-header">
@@ -652,14 +652,33 @@ function renderComplaints(complaints) {
                     <span class="priority-tag priority-${c.priority}">${c.priority.toUpperCase()}</span>
                 </div>
             </div>
+            <div class="user-info-brief">
+                By <strong>${c.submitter_name || 'Student'}</strong> · ${new Date(c.created_at).toLocaleDateString()}
+            </div>
             <div class="complaint-body">
                 <p>${c.description}</p>
             </div>
             <div class="complaint-footer">
-                <span class="complaint-date">Submitted on ${new Date(c.created_at).toLocaleDateString()}</span>
+                <div class="support-action">
+                    <button class="btn-support ${c.is_supported ? 'active' : ''}" onclick="toggleSupport(${c.id})">
+                        <span class="support-icon">${c.is_supported ? '♥' : '♡'}</span>
+                        <span class="support-text">${c.is_supported ? 'Supported' : 'Support Issue'}</span>
+                    </button>
+                    <span class="support-count"><strong>${c.support_count || 0}</strong> students support this</span>
+                </div>
                 ${c.admin_remark ? `<div class="admin-note"><strong>Admin Note:</strong> ${c.admin_remark}</div>` : ''}
             </div>
         </div>`).join('');
+}
+
+async function toggleSupport(id) {
+    const res = await apiFetch(`/api/complaints/${id}/support`, 'POST');
+    if (res.success) {
+        showToast(res.message, 'success');
+        complaints(); // Refresh view
+    } else {
+        showToast(res.message, 'error');
+    }
 }
 
 function openComplaintModal() {
