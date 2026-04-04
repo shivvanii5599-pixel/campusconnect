@@ -564,7 +564,7 @@ function filterLF() {
         (!type || i.type === type) &&
         (!search || i.title.toLowerCase().includes(search) || i.description.toLowerCase().includes(search))
     );
-    document.getElementById('lf-grid').innerHTML = renderLFCards(filtered);
+    document.getElementById('lf-grid').innerHTML = renderLostFoundCards(filtered);
 }
 
 function openPostItemModal() {
@@ -729,9 +729,14 @@ async function submitComplaint(e) {
 // ===== EVENTS =====
 async function events() {
     loading();
-    const res = await apiFetch('/api/events');
-    const myRegRes = await apiFetch('/api/events/my-registrations');
-    const registeredIds = new Set((myRegRes.events || []).map(e => e.id));
+    try {
+        const res = await apiFetch('/api/events');
+        const myRegRes = await apiFetch('/api/events/my-registrations');
+        if (!res.success) {
+            setContent(`<div class="empty-state"><div class="empty-icon">⚠️</div><p>Failed to load events: ${res.message || 'Server error'}</p></div>`);
+            return;
+        }
+        const registeredIds = new Set((myRegRes.events || []).map(e => e.id));
     const list = res.events || [];
     setContent(`
         <div class="page-header">
@@ -746,7 +751,10 @@ async function events() {
         <div id="ev-grid" class="item-grid">
             ${renderEventCards(list, registeredIds)}
         </div>`);
-    window._eventsData = list;
+        window._eventsData = list;
+    } catch (e) {
+        setContent('<div class="empty-state"><div class="empty-icon">⚠️</div><p>Failed to load events. Connection error.</p></div>');
+    }
 }
 
 function renderEventCards(events, registeredIds = new Set()) {
@@ -765,8 +773,8 @@ function renderEventCards(events, registeredIds = new Set()) {
                 <div class="event-category-badge">${e.category || 'General'}</div>
                 <h4 class="event-title">${e.title}</h4>
                 <div class="event-meta">
-                    <span>📍 ${e.location}</span> · 
-                    <span>⏰ ${e.event_time || 'TBA'}</span>
+                    <span>📍 ${e.venue || e.location || 'Campus'}</span> · 
+                    <span>⏰ ${new Date(e.event_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
                 <div class="participation-bar">
                     <div class="bar-info">
@@ -790,7 +798,7 @@ function renderEventCards(events, registeredIds = new Set()) {
     }).join('');
 }
 
-async function registerEvent(id) {
+async function registerForEvent(id) {
     const res = await apiFetch(`/api/events/${id}/register`, 'POST');
     if (res.success) { showToast('Registered successfully!', 'success'); events(); }
     else showToast(res.message, 'error');
@@ -1084,6 +1092,7 @@ function openCreateEventModal() {
                     </select>
                 </div>
             </div>
+            <div class="form-group"><label>Event Image (Optional)</label><input type="file" id="ev-image" accept="image/*"></div>
             <div class="action-row" style="margin-top:8px">
                 <button type="submit" class="btn-primary">Create Event</button>
                 <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
@@ -1096,13 +1105,24 @@ async function createEvent(e) {
     const fd = new FormData();
     fd.append('title', document.getElementById('ev-title').value);
     fd.append('description', document.getElementById('ev-desc').value);
-    fd.append('event_date', document.getElementById('ev-date').value);
+    fd.append('event_date', document.getElementById('ev-date').value.replace('T', ' '));
     fd.append('venue', document.getElementById('ev-venue').value);
     fd.append('category', document.getElementById('ev-cat').value);
     fd.append('max_participants', document.getElementById('ev-max').value);
-    const res = await apiFetch('/api/admin/events', 'POST', fd, true);
-    if (res.success) { showToast('Event created!', 'success'); closeModal(); adminEvents(); }
-    else showToast(res.message, 'error');
+    const img = document.getElementById('ev-image').files[0];
+    if (img) fd.append('image', img);
+    try {
+        const res = await apiFetch('/api/admin/events', 'POST', fd, true);
+        if (res.success) { 
+            showToast('Event created successfully!', 'success'); 
+            closeModal(); 
+            adminEvents(); 
+        } else {
+            showToast(res.message || 'Failed to create event', 'error');
+        }
+    } catch (err) {
+        showToast('Connection error failed to create event', 'error');
+    }
 }
 
 async function viewParticipants(id, title) {
@@ -1148,8 +1168,8 @@ function viewEventDetails(e) {
     const body = `
         <div class="modal-detail">
             <div class="event-meta" style="font-size:1.1rem;margin-bottom:15px;color:var(--text-muted)">
-                📅 ${new Date(e.event_date).toLocaleDateString()} at ${e.event_time || 'TBA'}<br>
-                📍 ${e.location}
+                📅 ${new Date(e.event_date).toLocaleDateString()} at ${new Date(e.event_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}<br>
+                📍 ${e.venue || e.location || 'Campus'}
             </div>
             <p style="white-space:pre-wrap;line-height:1.7;font-size:1rem;color:var(--text)">${e.description}</p>
             <div style="margin-top:20px;padding:20px;background:var(--bg3);border-radius:12px;border:1px solid var(--border)">
@@ -1185,4 +1205,6 @@ function viewItemDetails(item) {
 }
 
 // Init
-document.addEventListener('DOMContentLoaded', initApp);
+document.addEventListener('DOMContentLoaded', () => {
+    // Initial setup handled in the first DOMContentLoaded listener
+});

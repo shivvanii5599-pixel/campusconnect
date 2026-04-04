@@ -146,6 +146,7 @@ router.post('/events', adminMiddleware, upload.single('image'), async (req, res)
             'INSERT INTO events (title, description, event_date, venue, category, max_participants, image_path, created_by) VALUES (?,?,?,?,?,?,?,?)',
             [title, description, event_date, venue, category, max_participants || 0, image_path, req.user.id]
         );
+        console.log(`Event '${title}' created with ID: ${result.insertId} in DB: ${process.env.DB_NAME}`);
         res.json({ success: true, message: 'Event created successfully!', id: result.insertId });
     } catch (error) {
         console.error('Event creation error:', error);

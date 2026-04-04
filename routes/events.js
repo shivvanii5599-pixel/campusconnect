@@ -21,9 +21,9 @@ const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 router.get('/', authMiddleware, async (req, res) => {
     try {
         const { search, category } = req.query;
-        let query = `SELECT e.*, u.full_name as organizer,
+        let query = `SELECT e.*, COALESCE(u.full_name, 'Campus Admin') as organizer,
                      (SELECT COUNT(*) FROM registrations r WHERE r.event_id = e.id AND r.status='registered') as registered_count
-                     FROM events e JOIN users u ON e.created_by = u.id WHERE e.status != 'cancelled'`;
+                     FROM events e LEFT JOIN users u ON e.created_by = u.id WHERE e.status != 'cancelled'`;
         const params = [];
         if (category) { query += ' AND e.category = ?'; params.push(category); }
         if (search) { query += ' AND (e.title LIKE ? OR e.description LIKE ?)'; params.push(`%${search}%`, `%${search}%`); }

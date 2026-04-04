@@ -34,9 +34,10 @@ router.post('/register', async (req, res) => {
             [full_name, email, hashedPassword, roll_number || null, department || null, phone || null]
         );
         
+        const secret = process.env.JWT_SECRET || 'campus_connect_secret';
         const token = jwt.sign(
             { id: result.insertId, email, role: 'student', full_name },
-            process.env.JWT_SECRET,
+            secret,
             { expiresIn: '7d' }
         );
         
@@ -83,9 +84,10 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid credentials.' });
         }
         
+        const secret = process.env.JWT_SECRET || 'campus_connect_secret';
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role, full_name: user.full_name },
-            process.env.JWT_SECRET,
+            secret,
             { expiresIn: '7d' }
         );
         
