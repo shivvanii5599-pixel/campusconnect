@@ -75,16 +75,32 @@ router.get('/download/:id', async (req, res) => {
         const token = req.cookies?.token
             || req.headers.authorization?.split(' ')[1]
             || req.query.token;
-        if (!token) return res.status(401).json({ success: false, message: 'Unauthorized.' });
-        jwt.verify(token, process.env.JWT_SECRET || 'campus_connect_secret');
+            
+        if (!token) return res.status(401).json({ success: false, message: 'Unauthorized. No token provided.' });
+        
+        try {
+            jwt.verify(token, process.env.JWT_SECRET || 'campus_connect_secret');
+        } catch (err) {
+            return res.status(401).json({ success: false, message: 'Invalid or expired session. Please log in again.' });
+        }
+
         const [notes] = await db.query('SELECT * FROM notes WHERE id = ? AND status = "approved"', [req.params.id]);
-        if (notes.length === 0) return res.status(404).json({ success: false, message: 'Note not found.' });
+        if (notes.length === 0) return res.status(404).json({ success: false, message: 'Note not found or not yet approved.' });
+        
         await db.query('UPDATE notes SET download_count = download_count + 1 WHERE id = ?', [req.params.id]);
+        
         const filePath = path.join(__dirname, '../public/uploads/notes', notes[0].file_path);
-        if (!fs.existsSync(filePath)) return res.status(404).json({ success: false, message: 'File missing on server.' });
-        res.download(filePath, notes[0].title + '.pdf');
+        
+        if (!fs.existsSync(filePath)) {
+            console.error(`[Download Error] File missing at path: ${filePath}`);
+            return res.status(404).json({ success: false, message: 'File missing on server. Local uploads on Render are temporary and deleted after restarts.' });
+        }
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.download(filePath, (notes[0].title || 'note') + '.pdf');
     } catch (error) {
-        res.status(401).json({ success: false, message: 'Invalid token.' });
+        console.error('[Download Exception]:', error);
+        res.status(500).json({ success: false, message: 'Server error during download.' });
     }
 });
 

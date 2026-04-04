@@ -456,12 +456,16 @@ function filterNotes() {
 }
 
 async function downloadNote(id, title) {
-    let token = null; try { token = localStorage.getItem('cc_token'); } catch(ex) {}
+    const token = getToken();
+    const url = `/api/notes/download/${id}?token=${token}`;
+    
+    // Instead of window.open, use a hidden link to trigger a smoother download
     const a = document.createElement('a');
-    a.href = `/api/notes/download/${id}`;
-    a.download = title + '.pdf';
-    // Add auth header via link click won't work; use token param or just link
-    window.open(`/api/notes/download/${id}?token=${token}`);
+    a.href = url;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => document.body.removeChild(a), 100);
 }
 
 function openUploadNoteModal() {
