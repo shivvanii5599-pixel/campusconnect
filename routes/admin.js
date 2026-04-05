@@ -142,9 +142,14 @@ router.post('/events', adminMiddleware, upload.single('image'), async (req, res)
         if (!title || !event_date) return res.status(400).json({ success: false, message: 'Title and event date are required.' });
         
         const image_path = req.file ? req.file.filename : null;
+        let formattedDate = event_date;
+        if (formattedDate && formattedDate.length === 16) {
+            formattedDate += ':00';
+        }
+        
         const [result] = await db.query(
             'INSERT INTO events (title, description, event_date, venue, category, max_participants, image_path, created_by) VALUES (?,?,?,?,?,?,?,?)',
-            [title, description, event_date, venue, category, max_participants || 0, image_path, req.user.id]
+            [title, description, formattedDate, venue, category, parseInt(max_participants, 10) || 0, image_path, req.user.id]
         );
         console.log(`Event '${title}' created with ID: ${result.insertId} in DB: ${process.env.DB_NAME}`);
         res.json({ success: true, message: 'Event created successfully!', id: result.insertId });
