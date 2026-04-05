@@ -8,7 +8,7 @@ const pool = mysql.createPool({
     database: process.env.DB_NAME || 'campus_connect',
     port: process.env.DB_PORT || 3306,
     ssl: {
-        rejectUnauthorized: true
+        rejectUnauthorized: false
     },
     waitForConnections: true,
     connectionLimit: 10,

@@ -10,7 +10,7 @@ async function initDB() {
         port: process.env.DB_PORT || 3306,
         multipleStatements: true,
         ssl: {
-            rejectUnauthorized: true
+            rejectUnauthorized: false
         }
     };
 
