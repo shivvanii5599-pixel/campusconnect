@@ -297,6 +297,7 @@ async function dashboard() {
                         </div>
                     </div>
                     </div>
+                    <div style="position:fixed;bottom:10px;right:10px;font-size:10px;color:var(--text-dim);opacity:0.5">App v1.1.0-stable</div>
                     ${aboutSectionHTML()}`); 
             } else {
                 setContent(`<div class="empty-state"><div class="empty-icon">⚠️</div><p>Failed to load stats: ${res.message || 'Unknown error'}</p></div>`);
@@ -1081,7 +1082,7 @@ async function adminEvents() {
 
 function openCreateEventModal() {
     openModal('Create New Event', `
-        <form onsubmit="event.preventDefault(); createEvent(event);">
+        <form id="create-event-form">
             <div class="form-group"><label>Title *</label><input type="text" id="ev-title" required placeholder="Event name"></div>
             <div class="form-group"><label>Description</label><textarea id="ev-desc" placeholder="Event description..."></textarea></div>
             <div class="form-row">
@@ -1106,6 +1107,12 @@ function openCreateEventModal() {
                 <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
             </div>
         </form>`);
+    
+    // Programmatically attach the submit listener after the modal is in the DOM
+    const form = document.getElementById('create-event-form');
+    if (form) {
+        form.addEventListener('submit', createEvent);
+    }
 }
 
 async function createEvent(e) {
