@@ -175,9 +175,15 @@ router.get('/events/:id/participants', adminMiddleware, async (req, res) => {
 router.put('/events/:id', adminMiddleware, async (req, res) => {
     try {
         const { title, description, event_date, venue, category, max_participants, status } = req.body;
+        
+        let formattedDate = event_date;
+        if (formattedDate && formattedDate.length === 16) {
+            formattedDate += ':00';
+        }
+
         await db.query(
             'UPDATE events SET title=?, description=?, event_date=?, venue=?, category=?, max_participants=?, status=? WHERE id=?',
-            [title, description, event_date, venue, category, max_participants, status, req.params.id]
+            [title, description, formattedDate, venue, category, parseInt(max_participants, 10) || 0, status, req.params.id]
         );
         res.json({ success: true, message: 'Event updated successfully.' });
     } catch (error) {
