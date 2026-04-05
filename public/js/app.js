@@ -1081,7 +1081,7 @@ async function adminEvents() {
 
 function openCreateEventModal() {
     openModal('Create New Event', `
-        <form onsubmit="createEvent(event); return false;">
+        <form onsubmit="event.preventDefault(); createEvent(event);">
             <div class="form-group"><label>Title *</label><input type="text" id="ev-title" required placeholder="Event name"></div>
             <div class="form-group"><label>Description</label><textarea id="ev-desc" placeholder="Event description..."></textarea></div>
             <div class="form-row">
@@ -1109,7 +1109,8 @@ function openCreateEventModal() {
 }
 
 async function createEvent(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    console.log('createEvent triggered');
     const fd = new FormData();
     const titleEl = document.getElementById('ev-title');
     const descEl = document.getElementById('ev-desc');
