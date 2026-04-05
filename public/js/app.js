@@ -1081,7 +1081,7 @@ async function adminEvents() {
 
 function openCreateEventModal() {
     openModal('Create New Event', `
-        <form onsubmit="createEvent(event)">
+        <form onsubmit="createEvent(event); return false;">
             <div class="form-group"><label>Title *</label><input type="text" id="ev-title" required placeholder="Event name"></div>
             <div class="form-group"><label>Description</label><textarea id="ev-desc" placeholder="Event description..."></textarea></div>
             <div class="form-row">
@@ -1111,13 +1111,22 @@ function openCreateEventModal() {
 async function createEvent(e) {
     e.preventDefault();
     const fd = new FormData();
-    fd.append('title', document.getElementById('ev-title').value);
-    fd.append('description', document.getElementById('ev-desc').value);
-    fd.append('event_date', document.getElementById('ev-date').value.replace('T', ' '));
-    fd.append('venue', document.getElementById('ev-venue').value);
-    fd.append('category', document.getElementById('ev-cat').value);
-    fd.append('max_participants', document.getElementById('ev-max').value);
-    const img = document.getElementById('ev-image').files[0];
+    const titleEl = document.getElementById('ev-title');
+    const descEl = document.getElementById('ev-desc');
+    const dateEl = document.getElementById('ev-date');
+    const venueEl = document.getElementById('ev-venue');
+    const catEl = document.getElementById('ev-cat');
+    const maxEl = document.getElementById('ev-max');
+
+    if (titleEl) fd.append('title', titleEl.value);
+    if (descEl) fd.append('description', descEl.value);
+    if (dateEl) fd.append('event_date', (dateEl.value || '').replace('T', ' '));
+    if (venueEl) fd.append('venue', venueEl.value);
+    if (catEl) fd.append('category', catEl.value);
+    if (maxEl) fd.append('max_participants', maxEl.value);
+    
+    const imgInput = document.getElementById('ev-image');
+    const img = imgInput ? imgInput.files[0] : null;
     if (img) fd.append('image', img);
     try {
         const res = await apiFetch('/api/admin/events', 'POST', fd, true);
