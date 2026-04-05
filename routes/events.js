@@ -27,7 +27,7 @@ router.get('/', authMiddleware, async (req, res) => {
         const params = [];
         if (category) { query += ' AND e.category = ?'; params.push(category); }
         if (search) { query += ' AND (e.title LIKE ? OR e.description LIKE ?)'; params.push(`%${search}%`, `%${search}%`); }
-        query += ' ORDER BY e.event_date ASC';
+        query += ' ORDER BY e.event_date DESC';
         const [events] = await db.query(query, params);
         res.json({ success: true, events });
     } catch (error) {
