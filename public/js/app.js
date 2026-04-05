@@ -775,8 +775,14 @@ function renderEventCards(events, registeredIds = new Set()) {
                 <div class="event-category-badge">${e.category || 'General'}</div>
                 <h4 class="event-title">${e.title}</h4>
                 <div class="event-meta">
-                    <span>📍 ${e.venue || e.location || 'Campus'}</span> · 
-                    <span>⏰ ${new Date(e.event_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <div class="meta-item">
+                        <span class="meta-icon">📍</span>
+                        <span>${e.venue || e.location || 'Campus'}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-icon">⏰</span>
+                        <span>${isValidDate ? eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}</span>
+                    </div>
                 </div>
                 <div class="participation-bar">
                     <div class="bar-info">
@@ -793,7 +799,7 @@ function renderEventCards(events, registeredIds = new Set()) {
                             `<button class="btn-primary btn-sm full-width" onclick="registerForEvent(${e.id})">Register Now</button>`
                         )
                     }
-                    <button class="btn-secondary btn-sm" onclick="viewEventDetails(${JSON.stringify(e).replace(/"/g, '&quot;')})" title="View Details">ℹ️</button>
+                    <button class="btn-secondary btn-sm btn-icon-only" onclick="viewEventDetails(${JSON.stringify(e).replace(/"/g, '&quot;')})" title="View Details">ℹ️</button>
                 </div>
             </div>
         </div>`;

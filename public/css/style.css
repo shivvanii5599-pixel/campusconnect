@@ -1132,22 +1132,127 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 .admin-note { padding: 14px 18px; background: var(--bg3); border-radius: var(--radius-sm); border-left: 4px solid var(--accent); font-size: 0.92rem; color: var(--text); }
 
 /* Events */
-.event-card { display: flex; gap: 24px; padding: 24px !important; position: relative; }
-.event-date-ribbon { width: 70px; height: 75px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: var(--shadow-sm); }
-.event-day { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--accent); line-height: 1; }
-.event-month { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-top: 2px; }
+/* Events */
+.event-card { 
+    display: flex; 
+    gap: 20px; 
+    padding: 24px !important; 
+    position: relative; 
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    transition: var(--transition);
+}
 
-.event-content { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.event-category-badge { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--accent2); letter-spacing: 1px; }
-.event-title { font-family: 'Syne', sans-serif; font-size: 1.35rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.event-meta { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; }
+.event-card:hover {
+    transform: translateY(-5px) scale(1.01);
+    border-color: var(--accent);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px var(--accent-glow);
+}
 
-.participation-bar { margin: 12px 0 20px; }
-.bar-info { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; font-weight: 600; }
-.bar-outer { height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
-.bar-inner { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 4px; transition: width 1s ease-out; }
+.event-date-ribbon { 
+    width: 65px; 
+    height: 75px; 
+    background: linear-gradient(180deg, var(--bg3), var(--bg2)); 
+    border: 1px solid var(--border-bright); 
+    border-radius: 16px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    flex-shrink: 0; 
+    box-shadow: var(--shadow-sm); 
+}
 
-.event-footer { display: flex; gap: 12px; align-items: center; margin-top: auto; }
+.event-day { 
+    font-family: 'Syne', sans-serif; 
+    font-size: 1.8rem; 
+    font-weight: 800; 
+    color: var(--accent); 
+    line-height: 1; 
+}
+
+.event-month { 
+    font-size: 0.7rem; 
+    font-weight: 700; 
+    text-transform: uppercase; 
+    color: var(--text-muted); 
+    margin-top: 2px; 
+    letter-spacing: 1px;
+}
+
+.event-content { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px; 
+    min-width: 0; 
+}
+
+.event-category-badge { 
+    font-size: 0.65rem; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+    color: var(--accent2); 
+    letter-spacing: 1.5px; 
+    background: hsla(340, 100%, 65%, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    width: fit-content;
+}
+
+.event-title { 
+    font-family: 'Syne', sans-serif; 
+    font-size: 1.4rem; 
+    font-weight: 800; 
+    color: var(--text); 
+    line-height: 1.3;
+    /* Removed white-space: nowrap to allow wrapping */
+}
+
+.event-meta { 
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    font-size: 0.9rem; 
+    color: var(--text-muted); 
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.meta-icon {
+    font-size: 1rem;
+}
+
+.participation-bar { margin: 8px 0 16px; }
+.bar-info { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); }
+.bar-outer { height: 6px; background: var(--bg3); border-radius: 10px; overflow: hidden; }
+.bar-inner { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 10px; transition: width 1s ease-out; }
+
+.event-footer { 
+    display: flex; 
+    gap: 10px; 
+    align-items: center; 
+    margin-top: auto; 
+}
+
+.event-footer .btn-primary, .event-footer .btn-secondary {
+    padding: 10px 20px;
+}
+
+.btn-icon-only {
+    width: 40px;
+    height: 40px;
+    padding: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
 
 /* ===== ORIGINAL RESPONSIVE STYLES ===== */
 @media (max-width: 900px) {
