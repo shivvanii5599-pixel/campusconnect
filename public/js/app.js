@@ -763,11 +763,13 @@ function renderEventCards(events, registeredIds = new Set()) {
         const isRegistered = registeredIds.has(e.id);
         const isFull = e.max_participants > 0 && e.registered_count >= e.max_participants;
         const eventDate = new Date(e.event_date);
+        const isValidDate = !isNaN(eventDate.getTime());
+        
         return `
         <div class="card event-card">
             <div class="event-date-ribbon">
-                <span class="event-day">${eventDate.getDate()}</span>
-                <span class="event-month">${eventDate.toLocaleString('default', { month: 'short' })}</span>
+                <span class="event-day">${isValidDate ? eventDate.getDate() : '??'}</span>
+                <span class="event-month">${isValidDate ? eventDate.toLocaleString('default', { month: 'short' }) : '---'}</span>
             </div>
             <div class="event-content">
                 <div class="event-category-badge">${e.category || 'General'}</div>
@@ -1055,7 +1057,7 @@ async function adminEvents() {
                         list.map(ev => `
                             <tr>
                                 <td><strong>${ev.title}</strong></td>
-                                <td style="color:var(--text-muted)">${new Date(ev.event_date).toLocaleDateString()}</td>
+                                <td style="color:var(--text-muted)">${!isNaN(new Date(ev.event_date).getTime()) ? new Date(ev.event_date).toLocaleDateString() : 'Invalid Date'}</td>
                                 <td>${ev.venue || '—'}</td>
                                 <td>${ev.category || '—'}</td>
                                 <td>${ev.registered_count}${ev.max_participants > 0 ? '/'+ev.max_participants : ''}</td>
